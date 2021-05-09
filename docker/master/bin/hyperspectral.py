@@ -10,13 +10,12 @@ sc = SparkContext(conf=conf)
 
 sqlContext = SQLContext(sc)
 
-BLOCK_SIZE = 5
-BAND_SIZE = 5
+BLOCK_SIZE = 1024
+BAND_SIZE = 180
 BLOCK_TOTAL_SIZE = BLOCK_SIZE * BAND_SIZE
-ITERATIONS = 2
+ITERATIONS = 7
 # Lectura de datos
-rddInput = sc.textFile("/user/root/image/b0.txt")
-
+rddInput = sc.textFile("image/data/b0.txt")
 # Añade el indice
 indexed = rddInput.zipWithIndex()
 
@@ -31,7 +30,7 @@ fullInfoDf = fullInfo.toDF(schema)
 ujPaso1 = fullInfoDf.groupBy("block", "band").agg(
     avg("value").alias("avg_value"))
 
-ujPaso1.coalesce(1).write.format('com.databricks.spark.csv').options(header='true').save('/user/root/output/out_centroide')
+ujPaso1.coalesce(1).write.format('com.databricks.spark.csv').options(header='true').save('output/out_centroide')
 
 ujPaso1 = ujPaso1.withColumnRenamed(
     'block', 'block_1').withColumnRenamed('band', 'band_1')
@@ -66,7 +65,7 @@ for x in range(ITERATIONS):
     indicesMayorBrilloParaGuardar = indicesMayorBrillo.drop(
         "block_1").drop("C2_sum")
     indicesMayorBrilloParaGuardar.coalesce(1).write.mode("append").format('com.databricks.spark.csv').options(
-        header='false').save('/user/root/output/out_indices_brillo')
+        header='false').save('output/out_indices_brillo')
 
     q = indicesMayorBrillo.join(cPaso2, (cPaso2.block == indicesMayorBrillo.block_1) & (
         cPaso2.pixel == indicesMayorBrillo.pixel_1), "inner").drop("block_1").drop("pixel_1")
@@ -87,7 +86,7 @@ for x in range(ITERATIONS):
         sum("Vn").alias("Vn"))
 
     uv.coalesce(1).write.format('com.databricks.spark.csv').options(
-        header='true').save('/user/root/output/out_proyeccion_iteracion_' + str(x + 1))
+        header='true').save('output/out_proyeccion_iteracion_' + str(x + 1))
 
     # PASO 5: Sustracción de información
     cPaso2 = cPaso2.withColumnRenamed(

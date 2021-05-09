@@ -16,7 +16,7 @@ ADD config/spark-defaults.conf /usr/local/spark/conf
 RUN chown root:root /usr/local/spark/conf/spark-defaults.conf
 
 # copiamos el fichero de hyperspectral
-ADD bin/hyperspectral.py /usr/local/spark/py
+ADD bin/hyperspectral.py /usr/local/spark/py/hyperspectral.py
 
 ADD config/bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh

@@ -17,6 +17,11 @@ ENV HADOOP_HOME=/usr/local/hadoop
 ENV HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/
 ENV YARN_CONF_DIR=/usr/local/hadoop/etc/hadoop/
 ENV PATH=$PATH:/usr/local/hadoop/bin:/usr/local/hadoop/sbin 
+ENV HDFS_NAMENODE_USER="root"
+ENV HDFS_DATANODE_USER="root"
+ENV HDFS_SECONDARYNAMENODE_USER="root"
+ENV YARN_RESOURCEMANAGER_USER="root"
+ENV YARN_NODEMANAGER_USER="root"
 
 # configuramos las claves ssh
 RUN ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
@@ -36,6 +41,9 @@ RUN mv /tmp/ssh_config ~/.ssh/config && \
     mv /tmp/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml && \
     mv /tmp/slaves $HADOOP_HOME/etc/hadoop/slaves && \
     mv /tmp/start-hadoop.sh ~/start-hadoop.sh
+
+RUN chmod 600 ~/.ssh/config
+RUN chown -R root ~/.ssh/config
 
 RUN chmod +x ~/start-hadoop.sh && \
     chmod +x $HADOOP_HOME/sbin/start-dfs.sh && \

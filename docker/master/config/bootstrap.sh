@@ -16,9 +16,11 @@ $SPARK_HOME/sbin/start-history-server.sh
 
 # run the spark job
 spark-submit --deploy-mode cluster --master yarn \
-               $SPARK_HOME/py/hyperspectral.py
+                --conf spark.yarn.appMasterEnv.SPARK_HOME=/dev/null \
+                --conf spark.executorEnv.SPARK_HOME=/dev/null \
+                $SPARK_HOME/py/hyperspectral.py
 
 # copy results from hdfs to local
-$HADOOP_HOME/bin/hdfs dfs -copyToLocal /user/root/output /output
+$HADOOP_HOME/bin/hdfs dfs -copyToLocal /user/root/output /data
 
 bash
