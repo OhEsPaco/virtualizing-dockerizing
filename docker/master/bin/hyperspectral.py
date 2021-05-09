@@ -10,10 +10,10 @@ sc = SparkContext(conf=conf)
 
 sqlContext = SQLContext(sc)
 
-BLOCK_SIZE = 1024
-BAND_SIZE = 180
+BLOCK_SIZE = 5
+BAND_SIZE = 5
 BLOCK_TOTAL_SIZE = BLOCK_SIZE * BAND_SIZE
-ITERATIONS = 7
+ITERATIONS = 2
 # Lectura de datos
 rddInput = sc.textFile("/user/root/image/b0.txt")
 

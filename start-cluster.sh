@@ -51,11 +51,11 @@ docker run -itd \
 
 echo "Making jobs. Please wait"
 
-while [ ! -d data/locations_most_actives ]
-do
-  sleep 10
+#while [ ! -d data/locations_most_actives ]
+#do
+#  sleep 10
   #echo "Waiting..."
-done
+#done
 
 echo "Stoping cluster..."
 docker stop hadoop-master
