@@ -2,25 +2,25 @@
 
 service ssh start
 
-# start cluster
+# Iniciamos dfs y yarn
 $HADOOP_HOME/sbin/start-dfs.sh
 $HADOOP_HOME/sbin/start-yarn.sh 
 
-# create paths and give permissions
+# Creamos las carpetas necesarias y movemos el archivo de imagen
 $HADOOP_HOME/bin/hdfs dfs -mkdir -p /user/root/image
 $HADOOP_HOME/bin/hdfs dfs -copyFromLocal /data image
 $HADOOP_HOME/bin/hdfs dfs -mkdir /spark-logs
 
-# start spark history server
+# Lanzamos el servidor de historia de spark para ver informacion de la tarea cuando acabe
 $SPARK_HOME/sbin/start-history-server.sh
 
-# run the spark job
+# Lanzamos el trabajo de hyperspectral
 spark-submit --deploy-mode cluster --master yarn \
                 --conf spark.yarn.appMasterEnv.SPARK_HOME=/dev/null \
                 --conf spark.executorEnv.SPARK_HOME=/dev/null \
                 $SPARK_HOME/py/hyperspectral.py
 
-# copy results from hdfs to local
+# Finalmente, copiamos los resultados al sistema de archivos local
 $HADOOP_HOME/bin/hdfs dfs -copyToLocal /user/root/output /data
 
 bash

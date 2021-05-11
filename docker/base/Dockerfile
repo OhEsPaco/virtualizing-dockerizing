@@ -1,17 +1,18 @@
+# Hemos elegido la ultima version de ubuntu lts para este trabajo
 FROM ubuntu:20.04
 
 WORKDIR /root
 
-# instalamos openssh-server, openjdk and wget
+# Instalamos openssh-server, openjdk y wget
 RUN apt-get update && apt-get install -y openssh-server openjdk-8-jdk wget
 
-# instalamos la ultima versión de hadoop
+# Instalamos la ultima versión de hadoop, en nuestro caso la 3.2.2
 RUN wget http://apache.rediris.es/hadoop/common/hadoop-3.2.2/hadoop-3.2.2.tar.gz && \
     tar -xzvf hadoop-3.2.2.tar.gz && \
     mv hadoop-3.2.2 /usr/local/hadoop && \
     rm hadoop-3.2.2.tar.gz
 
-# configuramos las variables de entorno
+# Configuramos las variables de entorno necesarias
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 
 ENV HADOOP_HOME=/usr/local/hadoop 
 ENV HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/
@@ -23,7 +24,7 @@ ENV HDFS_SECONDARYNAMENODE_USER="root"
 ENV YARN_RESOURCEMANAGER_USER="root"
 ENV YARN_NODEMANAGER_USER="root"
 
-# configuramos las claves ssh
+# Configuramos las claves SSH
 RUN ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
     cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 
@@ -31,6 +32,7 @@ RUN mkdir -p ~/hdfs/namenode && \
     mkdir -p ~/hdfs/datanode && \
     mkdir $HADOOP_HOME/logs
 
+# Movemos las configuraciones necesarias
 COPY config/* /tmp/
 
 RUN mv /tmp/ssh_config ~/.ssh/config && \
@@ -49,17 +51,31 @@ RUN chmod +x ~/start-hadoop.sh && \
     chmod +x $HADOOP_HOME/sbin/start-dfs.sh && \
     chmod +x $HADOOP_HOME/sbin/start-yarn.sh 
 
-# formateamos el hdfs
+# Formateamos el sistema de archivos distribuido del namenode
 RUN /usr/local/hadoop/bin/hdfs namenode -format
 
+# Lanzamos el servicio SSH
 CMD [ "sh", "-c", "service ssh start; bash"]
 
-# Puertos hdfs
-EXPOSE 9000 50010 50020 50070 50075 50090
-EXPOSE 9871 9870 9820 9869 9868 9867 9866 9865 9864
-# Puertos map reduce
-EXPOSE 19888
-# Puertos yarn
-EXPOSE 8030 8031 8032 8033 8040 8042 8088 8188
-# Otros puertos
-EXPOSE 49707 2122
+# Abrimos los puertos necesarios
+
+## SSH
+EXPOSE 2122
+
+## NameNode (HDFS)
+EXPOSE 9000 50070
+
+## DataNode (HDFS)
+EXPOSE 50010 50020 50075
+
+## SecondaryNameNode (HDFS)
+EXPOSE 50090
+
+## ResourceManager (YARN)
+EXPOSE 8030 8031 8032 8033 8088
+
+## NodeManager (YARN)
+EXPOSE 8040 8042 13562 47784
+
+## JobHistoryServer
+EXPOSE 10020 19888
